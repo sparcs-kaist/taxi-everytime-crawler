@@ -9,8 +9,8 @@ login_url = "https://everytime.kr/user/login"
 taxi_url = "https://everytime.kr/514512"
 
 params = {
-    "userid" : os.getenv('id_antaechan'),
-    "password" : os.getenv('pw_antaechan'),
+    "userid" : os.getenv('everytime_id'),
+    "password" : os.getenv('everytime_password'),
     "redirect" : "/"
 }
 
