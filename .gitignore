@@ -131,3 +131,5 @@ dmypy.json
 # chromedriver
 chromedriver_win32/
 
+# env
+.env

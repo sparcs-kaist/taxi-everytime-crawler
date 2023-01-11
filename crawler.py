@@ -1,21 +1,33 @@
+import requests
+import os
+from dotenv import load_dotenv
+from bs4 import BeautifulSoup
 
-# pip install selenium
-# setup chromedriver by your chrome version
+load_dotenv()
 
-from selenium import webdriver
+url = "https://everytime.kr/user/login"
+taxi_url = "https://everytime.kr/514512"
 
-# change chromedriver url by your local environment
-chromedriver_url = "./chromedriver_win32/chromedriver.exe"
+params = {
+    "userid" : os.getenv('id_antaechan'),
+    "password" : os.getenv('pw_antaechan'),
+    "redirect" : "/"
+}
 
-browser = webdriver.Chrome(chromedriver_url)
+headers = {
+    "User-Agent": os.getenv('user-agent')
+}
 
-url = "https://everytime.kr"
+res = requests.post(url, params = params, headers = headers)
+res.raise_for_status()
 
-browser.get(url)
+if __name__ == "__main__":
+    res = requests.get(taxi_url, headers=headers)
+    res.raise_for_status()
+    
+    soup = BeautifulSoup(res.text, "lxml")
+    print(soup.prettify())
 
-# chrome 종료 방지
-while True:
-    pass
 
 
 
