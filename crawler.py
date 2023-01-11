@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 load_dotenv()
 
-url = "https://everytime.kr/user/login"
+login_url = "https://everytime.kr/user/login"
 taxi_url = "https://everytime.kr/514512"
 
 params = {
@@ -18,7 +18,7 @@ headers = {
     "User-Agent": os.getenv('user-agent')
 }
 
-res = requests.post(url, params = params, headers = headers)
+res = requests.post(login_url, params = params, headers = headers)
 res.raise_for_status()
 
 if __name__ == "__main__":
