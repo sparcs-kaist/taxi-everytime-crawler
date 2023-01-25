@@ -11,7 +11,7 @@ login_url = "https://everytime.kr/login"
 taxi_url_prefix = "https://everytime.kr/514512/p/"
 page_number_end = 1
 
-chromedriver_filepath = "chromedriver_win32/chromedriver.exe"
+chromedriver_filepath = os.getenv('chromedriver_filepath')
 
 if __name__ == "__main__":
     
