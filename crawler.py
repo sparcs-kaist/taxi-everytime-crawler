@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # TODO: hard coding
     # TODO: python scheduler 사용 시 리팩토링
     
-    client = MongoClient(host=os.getenv('hostname'), port=os.getenv('port'))
+    client = MongoClient(host=os.getenv('hostname'), port=int(os.getenv('port')))
 
     # DB 접근
     local = client['local']
@@ -52,13 +52,12 @@ if __name__ == "__main__":
         raw_articles = wrap_articles.find_all("article")
         
         for raw_article in raw_articles:
+            id = raw_article.find("a", attrs={"class": "article"})['href'][-9:]
             upload_time = raw_article.find("time").text
             context = raw_article.find("p", attrs = {"class":"medium"}).text
             
-            # TODO: 글의 고유 id attribute 추가
-            # TODO: 글의 고유 id가 collection 안에 존재 시 insert x
-            
-            article = { "upload_time": upload_time, "context": context }
+            # TODO: 글의 고유 id가 collection 안에 존재 시 insert x        
+            article = { "id": id, "upload_time": upload_time, "context": context }
             everytime_taxi_articles.insert_one(article)
         
         
