@@ -29,7 +29,8 @@ if __name__ == "__main__":
     
     # TODO: hard coding
     # TODO: python scheduler 사용 시 리팩토링
-    client = MongoClient(host='localhost', port=27017)
+    
+    client = MongoClient(host=os.getenv('hostname'), port=os.getenv('port'))
     
     # TODO: print 삭제
     print(client.list_database_names())
