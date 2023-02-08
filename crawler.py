@@ -31,18 +31,12 @@ if __name__ == "__main__":
     # TODO: python scheduler 사용 시 리팩토링
     
     client = MongoClient(host=os.getenv('hostname'), port=os.getenv('port'))
-    
-    # TODO: print 삭제
-    print(client.list_database_names())
 
     # DB 접근
     local = client['local']
-    print(local.list_collection_names())
 
     if not "everytime_taxi_articles" in local.list_collection_names():
-        # taxi_articles collection 생성
         everytime_taxi_articles = local.create_collection('everytime_taxi_articles')
-        print(local.list_collection_names())
         
     everytime_taxi_articles = local["everytime_taxi_articles"]
     
