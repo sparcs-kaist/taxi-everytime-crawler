@@ -11,7 +11,6 @@ load_dotenv()
 login_url = "https://everytime.kr/login"
 taxi_url_prefix = "https://everytime.kr/514512/p/"
 chromedriver_filepath = os.getenv('chromedriver_filepath')
-page_number_end = 40
 
 if __name__ == "__main__":
     
