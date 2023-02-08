@@ -15,6 +15,8 @@ page_number_end = 40
 
 if __name__ == "__main__":
     
+    # TODO: python scheduler 사용 시 리팩토링
+    
     browser = webdriver.Chrome(chromedriver_filepath)
     browser.get(login_url)
 
@@ -24,24 +26,18 @@ if __name__ == "__main__":
     login_button = browser.find_element(By.XPATH, "//*[@id='container']/form/p[3]/input")
     login_button.click()
     
-    # localhost의 mongoDB 연결
-    
-    # TODO: python scheduler 사용 시 리팩토링
+    # collection 생성 및 연결
     client = MongoClient(host=os.getenv('hostname'), port=int(os.getenv('port')))
-
-    # DB 접근
     local = client['local']
 
     if not "everytime_taxi_articles" in local.list_collection_names():
         everytime_taxi_articles = local.create_collection('everytime_taxi_articles')
-        
     everytime_taxi_articles = local["everytime_taxi_articles"]
     
-    # 택시 게시판 html 요청
+    # html 페이지 크롤링
     page_number = 1
     while True:
-        taxi_url = taxi_url_prefix + str(page_number)
-        browser.get(taxi_url)
+        browser.get(taxi_url_prefix + str(page_number))
         taxi_page =  browser.page_source
         
         soup = BeautifulSoup(taxi_page, "html5lib")
