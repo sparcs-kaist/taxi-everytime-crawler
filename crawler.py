@@ -53,11 +53,11 @@ if __name__ == "__main__":
         
         for raw_article in raw_articles:
             id = raw_article.find("a", attrs={"class": "article"})['href'][-9:]
-            upload_time = raw_article.find("time").text
+            date, time = raw_article.find("time").text.split(" ")
             context = raw_article.find("p", attrs = {"class":"medium"}).text
-            
+    
             # TODO: 글의 고유 id가 collection 안에 존재 시 insert x        
-            article = { "id": id, "upload_time": upload_time, "context": context }
+            article = { "id": id, "date": date, "time": time, "context": context }
             everytime_taxi_articles.insert_one(article)
         
         
