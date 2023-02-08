@@ -10,9 +10,8 @@ load_dotenv()
 
 login_url = "https://everytime.kr/login"
 taxi_url_prefix = "https://everytime.kr/514512/p/"
-page_number_end = 1
-
 chromedriver_filepath = os.getenv('chromedriver_filepath')
+page_number_end = 40
 
 if __name__ == "__main__":
     
@@ -27,9 +26,7 @@ if __name__ == "__main__":
     
     # localhost의 mongoDB 연결
     
-    # TODO: hard coding
     # TODO: python scheduler 사용 시 리팩토링
-    
     client = MongoClient(host=os.getenv('hostname'), port=int(os.getenv('port')))
 
     # DB 접근
@@ -41,14 +38,18 @@ if __name__ == "__main__":
     everytime_taxi_articles = local["everytime_taxi_articles"]
     
     # 택시 게시판 html 요청
-    for page_number in range(page_number_end + 1):
+    page_number = 1
+    while True:
         taxi_url = taxi_url_prefix + str(page_number)
         browser.get(taxi_url)
         taxi_page =  browser.page_source
         
         soup = BeautifulSoup(taxi_page, "html5lib")
-        
         wrap_articles = soup.find("div", attrs = {"class":"wrap articles"})
+        
+        if wrap_articles.find("article", attrs={"class": "dialog"}) != None:
+            break
+        
         raw_articles = wrap_articles.find_all("article")
         
         for raw_article in raw_articles:
@@ -56,11 +57,11 @@ if __name__ == "__main__":
             date, time = raw_article.find("time").text.split(" ")
             context = raw_article.find("p", attrs = {"class":"medium"}).text
     
-            # TODO: 글의 고유 id가 collection 안에 존재 시 insert x        
+            # TODO: 글의 고유 id가 collection 안에 존재 시 insert x
             article = { "id": id, "date": date, "time": time, "context": context }
             everytime_taxi_articles.insert_one(article)
         
-        
+        page_number += 1       
 
 
 
