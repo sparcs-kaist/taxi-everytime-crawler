@@ -57,11 +57,12 @@ if __name__ == "__main__":
             date, time = raw_article.find("time").text.split(" ")
             context = raw_article.find("p", attrs = {"class":"medium"}).text
     
-            # TODO: 글의 고유 id가 collection 안에 존재 시 insert x
             article = { "id": id, "date": date, "time": time, "context": context }
-            everytime_taxi_articles.insert_one(article)
+            
+            if len(list(everytime_taxi_articles.find({"id": id}))) == 0:
+                everytime_taxi_articles.insert_one(article)
         
-        page_number += 1       
+        page_number += 1
 
 
 
