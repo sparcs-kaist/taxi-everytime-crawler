@@ -11,10 +11,8 @@ load_dotenv()
 login_url = "https://everytime.kr/login"
 taxi_url_prefix = "https://everytime.kr/514512/p/"
 
-if __name__ == "__main__":
 
-    # TODO: python scheduler 사용 시 리팩토링
-
+def crawling():
     browser = webdriver.Chrome(os.getenv("chromedriver_filepath"))
     browser.get(login_url)
 
@@ -62,3 +60,8 @@ if __name__ == "__main__":
                 everytime_taxi_articles.insert_one(article)
 
         page_number += 1
+
+
+if __name__ == "__main__":
+    # TODO: python scheduler 사용 시 리팩토링
+    crawling()
