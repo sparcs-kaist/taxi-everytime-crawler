@@ -13,6 +13,14 @@ login_url = "https://everytime.kr/login"
 taxi_url_prefix = "https://everytime.kr/514512/p/"
 
 
+def crawling():
+    browser = webdriver.Chrome(os.getenv("chromedriver_filepath"))
+
+    login(browser)
+    everytime_taxi_articles = connect_db()
+    update_db(browser, everytime_taxi_articles)
+
+
 def login(browser):
     browser.get(login_url)
 
@@ -61,14 +69,6 @@ def update_db(browser, everytime_taxi_articles):
                 everytime_taxi_articles.insert_one(article)
 
         page_number += 1
-
-
-def crawling():
-    browser = webdriver.Chrome(os.getenv("chromedriver_filepath"))
-
-    login(browser)
-    everytime_taxi_articles = connect_db()
-    update_db(browser, everytime_taxi_articles)
 
 
 if __name__ == "__main__":
