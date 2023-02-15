@@ -11,6 +11,8 @@ load_dotenv()
 login_url = "https://everytime.kr/login"
 taxi_url_prefix = "https://everytime.kr/514512/p/"
 chromedriver_filepath = os.getenv('chromedriver_filepath')
+mongodb_uri = os.getenv('mongodb_uri')
+db_name = os.getenv('db')
 
 if __name__ == "__main__":
     
@@ -26,12 +28,13 @@ if __name__ == "__main__":
     login_button.click()
     
     # collection 생성 및 연결
-    client = MongoClient(host=os.getenv('hostname'), port=int(os.getenv('port')))
-    local = client['local']
+    
+    client = MongoClient(mongodb_uri)
+    db = client[db_name]
 
-    if not "everytime_taxi_articles" in local.list_collection_names():
-        everytime_taxi_articles = local.create_collection('everytime_taxi_articles')
-    everytime_taxi_articles = local["everytime_taxi_articles"]
+    if not "everytime_taxi_articles" in db.list_collection_names():
+        everytime_taxi_articles = db.create_collection('everytime_taxi_articles')
+    everytime_taxi_articles = db["everytime_taxi_articles"]
     
     # html 페이지 크롤링
     page_number = 1
