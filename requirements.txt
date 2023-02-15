@@ -1,7 +1,5 @@
 beautifulsoup4==4.11.1
 bs4==0.0.1
-requests==2.27.1
-requests-file==1.5.1
 selenium==4.7.2
 python-dotenv==0.21.0
 pymongo==4.3.3
