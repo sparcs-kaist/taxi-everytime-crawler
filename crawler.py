@@ -1,5 +1,7 @@
 import requests
 import os
+import schedule
+import time
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -63,5 +65,8 @@ def crawling():
 
 
 if __name__ == "__main__":
-    # TODO: python scheduler 사용 시 리팩토링
-    crawling()
+    schedule.every(10).seconds.do(crawling)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
