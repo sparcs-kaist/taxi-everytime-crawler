@@ -14,22 +14,19 @@ login_url = "https://everytime.kr/login"
 taxi_url_prefix = "https://everytime.kr/514512/p/"
 
 
-def crawling():
-    browser = webdriver.Chrome(os.getenv("chromedriver_filepath"))
+def login(browser):
     browser.get(login_url)
 
     # 로그인
-    id = browser.find_element(By.NAME, "userid").send_keys(os.getenv("everytime_id"))
-    password = browser.find_element(By.NAME, "password").send_keys(
-        os.getenv("everytime_password")
-    )
+    browser.find_element(By.NAME, "userid").send_keys(os.getenv("everytime_id"))
+    browser.find_element(By.NAME, "password").send_keys(os.getenv("everytime_password"))
     login_button = browser.find_element(
         By.XPATH, "//*[@id='container']/form/p[3]/input"
     )
     login_button.click()
 
-    # collection 생성 및 연결
 
+def connect_db():
     client = MongoClient(os.getenv("mongodb_uri"))
     db = client[os.getenv("db")]
 
@@ -37,7 +34,10 @@ def crawling():
         everytime_taxi_articles = db.create_collection("everytime_taxi_articles")
     everytime_taxi_articles = db["everytime_taxi_articles"]
 
-    # html 페이지 크롤링
+    return everytime_taxi_articles
+
+
+def update_db(browser, everytime_taxi_articles):
     page_number = 1
     while True:
         browser.get(taxi_url_prefix + str(page_number))
@@ -62,6 +62,14 @@ def crawling():
                 everytime_taxi_articles.insert_one(article)
 
         page_number += 1
+
+
+def crawling():
+    browser = webdriver.Chrome(os.getenv("chromedriver_filepath"))
+
+    login(browser)
+    everytime_taxi_articles = connect_db()
+    update_db(browser, everytime_taxi_articles)
 
 
 if __name__ == "__main__":
