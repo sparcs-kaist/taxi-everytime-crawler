@@ -10,15 +10,12 @@ load_dotenv()
 
 login_url = "https://everytime.kr/login"
 taxi_url_prefix = "https://everytime.kr/514512/p/"
-chromedriver_filepath = os.getenv("chromedriver_filepath")
-mongodb_uri = os.getenv("mongodb_uri")
-db_name = os.getenv("db")
 
 if __name__ == "__main__":
 
     # TODO: python scheduler 사용 시 리팩토링
 
-    browser = webdriver.Chrome(chromedriver_filepath)
+    browser = webdriver.Chrome(os.getenv("chromedriver_filepath"))
     browser.get(login_url)
 
     # 로그인
@@ -33,8 +30,8 @@ if __name__ == "__main__":
 
     # collection 생성 및 연결
 
-    client = MongoClient(mongodb_uri)
-    db = client[db_name]
+    client = MongoClient(os.getenv("mongodb_uri"))
+    db = client[os.getenv("db")]
 
     if not "everytime_taxi_articles" in db.list_collection_names():
         everytime_taxi_articles = db.create_collection("everytime_taxi_articles")
