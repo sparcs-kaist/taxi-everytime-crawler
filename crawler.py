@@ -17,8 +17,8 @@ def crawling():
     browser = webdriver.Chrome(os.getenv("chromedriver_filepath"))
 
     login(browser)
-    everytime_taxi_articles = connect_db()
-    update_db(browser, everytime_taxi_articles)
+    db_articles = connect_db()
+    update_db(browser, db_articles)
 
 
 def login(browser):
@@ -37,14 +37,14 @@ def connect_db():
     client = MongoClient(os.getenv("mongodb_uri"))
     db = client[os.getenv("db")]
 
-    if not "everytime_taxi_articles" in db.list_collection_names():
-        everytime_taxi_articles = db.create_collection("everytime_taxi_articles")
-    everytime_taxi_articles = db["everytime_taxi_articles"]
+    if not "db_articles" in db.list_collection_names():
+        db_articles = db.create_collection("db_articles")
+    db_articles = db["db_articles"]
 
-    return everytime_taxi_articles
+    return db_articles
 
 
-def update_db(browser, everytime_taxi_articles):
+def update_db(browser, db_articles):
     page_number = 1
     while True:
         browser.get(taxi_url_prefix + str(page_number))
@@ -65,8 +65,8 @@ def update_db(browser, everytime_taxi_articles):
 
             article = {"id": id, "date": date, "time": time, "context": context}
 
-            if len(list(everytime_taxi_articles.find({"id": id}))) == 0:
-                everytime_taxi_articles.insert_one(article)
+            if len(list(db_articles.find({"id": id}))) == 0:
+                db_articles.insert_one(article)
 
         page_number += 1
 
