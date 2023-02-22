@@ -65,7 +65,7 @@ def update_db(browser, db_articles):
 
             article = {"id": id, "date": date, "time": time, "context": context}
 
-            if len(list(db_articles.find({"id": id}))) == 0:
+            if len(list(db_articles.find_one({"id": id}))) == 0:
                 db_articles.insert_one(article)
 
         page_number += 1
