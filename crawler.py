@@ -1,5 +1,6 @@
-import requests
 import os
+import schedule
+import time
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -14,28 +15,36 @@ taxi_url_prefix = "https://everytime.kr/514512/p/"
 
 def crawling():
     browser = webdriver.Chrome(os.getenv("chromedriver_filepath"))
+
+    login(browser)
+    db_articles = connect_db()
+    update_db(browser, db_articles)
+
+
+def login(browser):
     browser.get(login_url)
 
     # 로그인
-    id = browser.find_element(By.NAME, "userid").send_keys(os.getenv("everytime_id"))
-    password = browser.find_element(By.NAME, "password").send_keys(
-        os.getenv("everytime_password")
-    )
+    browser.find_element(By.NAME, "userid").send_keys(os.getenv("everytime_id"))
+    browser.find_element(By.NAME, "password").send_keys(os.getenv("everytime_password"))
     login_button = browser.find_element(
         By.XPATH, "//*[@id='container']/form/p[3]/input"
     )
     login_button.click()
 
-    # collection 생성 및 연결
 
+def connect_db():
     client = MongoClient(os.getenv("mongodb_uri"))
     db = client[os.getenv("db")]
 
-    if not "everytime_taxi_articles" in db.list_collection_names():
-        everytime_taxi_articles = db.create_collection("everytime_taxi_articles")
-    everytime_taxi_articles = db["everytime_taxi_articles"]
+    if not "db_articles" in db.list_collection_names():
+        db_articles = db.create_collection("db_articles")
+    db_articles = db["db_articles"]
 
-    # html 페이지 크롤링
+    return db_articles
+
+
+def update_db(browser, db_articles):
     page_number = 1
     while True:
         browser.get(taxi_url_prefix + str(page_number))
@@ -56,12 +65,15 @@ def crawling():
 
             article = {"id": id, "date": date, "time": time, "context": context}
 
-            if len(list(everytime_taxi_articles.find({"id": id}))) == 0:
-                everytime_taxi_articles.insert_one(article)
+            if len(list(db_articles.find_one({"id": id}))) == 0:
+                db_articles.insert_one(article)
 
         page_number += 1
 
 
 if __name__ == "__main__":
-    # TODO: python scheduler 사용 시 리팩토링
-    crawling()
+    schedule.every(30).minutes.do(crawling)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
