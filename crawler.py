@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from pymongo import MongoClient
+from slacker import Slacker
 
 load_dotenv()
 
