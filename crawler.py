@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from pymongo import MongoClient
+import requests
 
 load_dotenv()
 
@@ -15,7 +16,6 @@ taxi_url_prefix = "https://everytime.kr/514512/p/"
 
 def crawling():
     browser = webdriver.Chrome(os.getenv("chromedriver_filepath"))
-
     login(browser)
     db_articles = connect_db()
     update_db(browser, db_articles)
@@ -67,12 +67,31 @@ def update_db(browser, db_articles):
 
             if len(list(db_articles.find_one({"id": id}))) == 0:
                 db_articles.insert_one(article)
+                post_message(context)
 
         page_number += 1
 
 
+def post_message(context, channel="#taxi-crawler-bot"):
+
+    token = os.getenv("slack_token")
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+
+    data = f"text={context}&channel={channel}"
+
+    try:
+        response = requests.post(
+            "https://slack.com/api/chat.postMessage", headers=headers, data=data
+        )
+    except Exception as e:
+        print(f"Error: {e}")
+
+
 if __name__ == "__main__":
-    schedule.every(30).minutes.do(crawling)
+    schedule.every(10).seconds.do(crawling)
 
     while True:
         schedule.run_pending()
