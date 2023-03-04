@@ -24,7 +24,6 @@ def crawling():
 def login(browser):
     browser.get(login_url)
 
-    # 로그인
     browser.find_element(By.NAME, "userid").send_keys(os.getenv("everytime_id"))
     browser.find_element(By.NAME, "password").send_keys(os.getenv("everytime_password"))
     login_button = browser.find_element(
