@@ -1,12 +1,16 @@
 import os
 import schedule
 import time
+import requests
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 from pymongo import MongoClient
-import requests
+from selenium import webdriver
+from twocaptcha import TwoCaptcha
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 load_dotenv()
 
@@ -24,13 +28,73 @@ def crawling():
 def login(browser):
     browser.get(login_url)
 
-    # 로그인
     browser.find_element(By.NAME, "userid").send_keys(os.getenv("everytime_id"))
     browser.find_element(By.NAME, "password").send_keys(os.getenv("everytime_password"))
+
+    solve_captcha(browser)
+
     login_button = browser.find_element(
         By.XPATH, "//*[@id='container']/form/p[3]/input"
     )
+
     login_button.click()
+
+
+def solve_captcha(browser):
+
+    site_key = "6LcIzJgkAAAAAPBm90Y_3UPvkR_ZuM9Rh0P89CBe"
+    method = "userrecaptcha"
+    key = os.getenv("2captcha_api_key")
+
+    url = f"http://2captcha.com/in.php?key={key}&method={method}&googlekey={site_key}&pageurl={login_url}"
+    response = requests.get(url)
+
+    print(response.text)
+
+    captcha_id = response.text[3:]
+    token_url = "http://2captcha.com/res.php?key={}&action=get&id={}".format(
+        key, captcha_id
+    )
+
+    while True:
+        time.sleep(10)
+        response = requests.get(token_url)
+
+        if response.text[0:2] == "OK":
+            break
+
+    print(response.text)
+    captha_results = response.text[3:]
+    browser.execute_script(
+        """document.querySelector('[name="g-recaptcha-response"]').innerText='{}'""".format(
+            captha_results
+        )
+    )
+    browser.find_element(By.XPATH, '//*//*[@id="recaptcha-anchor"]').click()
+
+    # solver = TwoCaptcha(os.getenv("2captcha_api_key"))
+
+    # try:
+    #     print("Solving captcha...")
+    #     result = solver.recaptcha(
+    #         sitekey="6LcIzJgkAAAAAPBm90Y_3UPvkR_ZuM9Rh0P89CBe",
+    #         url="https://everytime.kr/login",
+    #     )
+    #     WebDriverWait(browser, 10).until(
+    #         EC.presence_of_element_located((By.ID, "g-recaptcha-response"))
+    #     )
+
+    #     captcha_response_textarea = browser.find_element(
+    #         By.XPATH, '//*[@id="g-recaptcha-response"]'
+    #     )
+
+    #     captcha_response_textarea.send_keys(result["code"])
+
+    #     captcha_button = browser.find_element(By.XPATH, '//*[@id="recaptcha-anchor"]')
+    #     captcha_button.click()
+
+    # except Exception as e:
+    #     print("Error: ", e)
 
 
 def connect_db():
